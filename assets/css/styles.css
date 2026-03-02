@@ -1,0 +1,18 @@
+:root {
+    --peak-blue: #0056b3;
+    --peak-dark: #001f3f;
+    --peak-bg: #f8f9fa;
+}
+
+body { background-color: var(--peak-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+/* Sidebar Styling */
+.sidebar { width: 260px; height: 100vh; background: #fff; position: fixed; border-right: 1px solid #e0e0e0; }
+.nav-link { color: #6c757d; font-weight: 500; padding: 12px 20px; border-radius: 8px; margin: 4px 15px; }
+.nav-link.active { background-color: var(--peak-blue); color: #fff !important; }
+.nav-link:hover:not(.active) { background-color: #f1f3f5; color: var(--peak-blue); }
+
+/* Card & Content Styling */
+.main-content { margin-left: 260px; padding: 30px; }
+.stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+.progress-circle { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; position: relative; }
