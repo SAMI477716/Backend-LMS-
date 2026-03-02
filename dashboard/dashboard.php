@@ -23,17 +23,6 @@ $stmt = $pdo->query($query);
 $students = $stmt->fetchAll();
 ?>
 
-<header class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-0">Dashboard</h2>
-        <p class="text-muted">Welcome back, Tebarek!</p>
-    </div>
-    <div class="d-flex align-items-center">
-        <span class="text-muted me-3"><i class="bi bi-calendar3 me-2"></i> March 2, 2026</span>
-        <a href="../logout.php" class="btn btn-sm btn-danger">Logout</a>
-    </div>
-</header>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,6 +98,26 @@ $students = $stmt->fetchAll();
             <div class="card stat-card p-3 d-flex flex-row justify-content-between align-items-center">
                 <div><p class="text-muted mb-0">Pending Grades</p><h3 class="mb-0">12</h3></div>
                 <i class="bi bi-clipboard-check fs-2 text-warning"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card stat-card p-4 mb-4">
+        <h5 class="fw-bold mb-4">Course Completion Progress</h5>
+        <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold small">GitHub Basics for Beginners</span>
+            </div>
+            <div class="progress" style="height: 8px; border-radius: 10px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold small">LinkedIn Essentials for Beginners</span>
+            </div>
+            <div class="progress" style="height: 8px; border-radius: 10px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 72%"></div>
             </div>
         </div>
     </div>
