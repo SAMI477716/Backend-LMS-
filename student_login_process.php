@@ -3,10 +3,9 @@ session_start();
 include 'config/db_config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    // Find user and confirm they have the 'student' role
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND role = 'student'");
     $stmt->execute([$username]);
     $user = $stmt->fetch();
@@ -23,3 +22,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 }
+?>

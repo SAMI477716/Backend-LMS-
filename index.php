@@ -5,9 +5,9 @@
     <title>LMS Tracker - Peak Members</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        body { background-color: rgb(248, 249, 250); height: 100vh; display: flex; align-items: center; justify-content: center; }
         .selection-card { width: 450px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .btn-role { border: 2px solid #001f3f; color: #001f3f; padding: 15px; margin-bottom: 15px; transition: 0.3s; font-weight: bold; }
+        .btn-role { border: 2.5px solid #001f3f; color: #001f3f; padding: 15px; margin-bottom: 15px; transition: 0.3s; font-weight: bold; }
         .btn-student { background-color: #001f3f; color: white; }
     </style>
 </head>

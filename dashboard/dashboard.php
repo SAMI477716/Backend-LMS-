@@ -31,125 +31,250 @@ $students = $stmt->fetchAll();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            background: #fff;
+            border-right: 1px solid #e9ecef;
+            padding-top: 20px;
+        }
+        .sidebar .nav-link {
+            color: #6c757d;
+            padding: 12px 25px;
+            font-weight: 500;
+        }
+        .sidebar .nav-link.active {
+            color: #0d6efd;
+            background: #f8f9fa;
+        }
+        .sidebar .nav-link:hover {
+            color: #0d6efd;
+        }
+
+        /* Circular Progress Styling */
+        .progress-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, white 79%, transparent 80% 100%),
+                        conic-gradient(var(--progress-color) calc(var(--progress-value) * 1%), #e9ecef 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+        .progress-circle::before {
+            content: attr(data-value) '%';
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .progress-circle span {
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        /* Header Profile Icon Styling */
+        .profile-header-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: #004a99;
+            color: white;
+            border-radius: 50%;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        /* Search Input Styling */
+        .search-container {
+            position: relative;
+            max-width: 300px;
+        }
+        .search-container i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .search-container input {
+            padding-left: 35px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="p-4"><h4 class="fw-bold text-primary">LMS Dashboard</h4></div>
-    <nav class="nav flex-column px-3">
-        <a class="nav-link active" href="#"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
-        <a class="nav-link" href="#"><i class="bi bi-people me-2"></i> Students</a>
-        <a class="nav-link" href="#"><i class="bi bi-book me-2"></i> Courses</a>
-        <a class="nav-link" href="#"><i class="bi bi-journal-check me-2"></i> Grades</a>
-        <a class="nav-link" href="#"><i class="bi bi-gear me-2"></i> Settings</a>
-    </nav>
-    <div class="mt-auto p-4 border-top">
-        <div class="d-flex align-items-center">
-            <div class="bg-primary text-white rounded-circle p-2 me-2">TB</div>
-            <div><small class="d-block fw-bold"><?php echo $_SESSION['username']; ?></small><small class="text-muted">Instructor</small></div>
-        </div>
+    <div class="px-4 mb-4">
+        <h4 class="fw-bold text-primary">LMS Dashboard</h4>
     </div>
+    <nav class="nav flex-column">
+        <a class="nav-link active" href="#"><i class="bi bi-grid-fill me-2"></i> dashboard</a>
+        <a class="nav-link" href="#"><i class="bi bi-people me-2"></i> student</a>
+        <a class="nav-link" href="#"><i class="bi bi-book me-2"></i> course</a>
+        <a class="nav-link" href="#"><i class="bi bi-journal-check me-2"></i> grade</a>
+        <a class="nav-link" href="#"><i class="bi bi-gear me-2"></i> setting</a>
+        <a class="nav-link text-danger mt-3" href="../logout.php"><i class="bi bi-box-arrow-left me-2"></i> logout</a>
+    </nav>
 </div>
 
 <div class="main-content">
     <header class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-0">Dashboard</h2>
-            <p class="text-muted">Welcome back, <?php echo $_SESSION['username']; ?>! Here's the latest data.</p>
+            <p class="text-muted small">Welcome back, <?php echo $_SESSION['username']; ?>!</p>
         </div>
-        <div class="text-muted"><i class="bi bi-calendar3 me-2"></i> March 2, 2026</div>
+        
+        <div class="d-flex align-items-center">
+            <div class="text-muted me-3 small"><i class="bi bi-calendar3 me-1"></i> March 2, 2026</div>
+            <i class="bi bi-bell me-3 text-muted"></i>
+            <div class="profile-header-icon shadow-sm" title="Instructor Profile">
+                TB
+            </div>
+        </div>
     </header>
 
     <div class="row g-4 mb-4">
         <div class="col-md-6">
-            <div class="card stat-card p-4">
-                <div class="d-flex justify-content-between">
-                    <div><h5 class="fw-bold">Batch 1</h5><p class="text-muted small"><i class="bi bi-people"></i> 24 students</p></div>
-                    <div class="text-end"><h2 class="fw-bold mb-0">78%</h2></div>
+            <div class="card border-0 shadow-sm p-4">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h5 class="fw-bold mb-0">Batch 1</h5>
+                        <p class="text-muted small mb-0">24 students</p>
+                    </div>
+                    <div class="text-end">
+                        <h2 class="fw-bold mb-0">78%</h2>
+                        <span class="text-success small"><i class="bi bi-graph-up"></i> 5% vs last week</span>
+                    </div>
                 </div>
-                <div class="progress-circle mt-3" style="border-top-color: #0056b3;"><span class="fw-bold">78%</span></div>
+                <div class="progress-circle" data-value="78" style="--progress-color: #0d6efd; --progress-value: 78;">
+                    <span>Complete</span>
+                </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card stat-card p-4">
-                <div class="d-flex justify-content-between">
-                    <div><h5 class="fw-bold">Batch 2</h5><p class="text-muted small"><i class="bi bi-people"></i> 24 students</p></div>
-                    <div class="text-end"><h2 class="fw-bold mb-0">75%</h2></div>
+            <div class="card border-0 shadow-sm p-4">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h5 class="fw-bold mb-0">Batch 2</h5>
+                        <p class="text-muted small mb-0">24 students</p>
+                    </div>
+                    <div class="text-end">
+                        <h2 class="fw-bold mb-0">75%</h2>
+                        <span class="text-danger small"><i class="bi bi-graph-down"></i> 2% vs last week</span>
+                    </div>
                 </div>
-                <div class="progress-circle mt-3" style="border-top-color: #28a745;"><span class="fw-bold">75%</span></div>
+                <div class="progress-circle" data-value="75" style="--progress-color: #198754; --progress-value: 75;">
+                    <span>Complete</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4 mb-4 text-center">
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card stat-card p-3 d-flex flex-row justify-content-between align-items-center">
-                <div><p class="text-muted mb-0">Total Students</p><h3 class="mb-0"><?php echo $total_students; ?></h3></div>
-                <i class="bi bi-people fs-2 text-primary"></i>
+            <div class="card border-0 shadow-sm p-3 d-flex flex-row justify-content-between align-items-center">
+                <div><p class="text-muted mb-0 small fw-bold">Total Students</p><h3 class="mb-0"><?php echo $total_students; ?></h3></div>
+                <i class="bi bi-people fs-3 text-primary"></i>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card p-3 d-flex flex-row justify-content-between align-items-center">
-                <div><p class="text-muted mb-0">Active Courses</p><h3 class="mb-0">4</h3></div>
-                <i class="bi bi-book fs-2 text-success"></i>
+            <div class="card border-0 shadow-sm p-3 d-flex flex-row justify-content-between align-items-center">
+                <div><p class="text-muted mb-0 small fw-bold">Active Courses</p><h3 class="mb-0">4</h3></div>
+                <i class="bi bi-book fs-3 text-success"></i>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card p-3 d-flex flex-row justify-content-between align-items-center">
-                <div><p class="text-muted mb-0">Pending Grades</p><h3 class="mb-0">12</h3></div>
-                <i class="bi bi-clipboard-check fs-2 text-warning"></i>
+            <div class="card border-0 shadow-sm p-3 d-flex flex-row justify-content-between align-items-center">
+                <div><p class="text-muted mb-0 small fw-bold">Pending Grades</p><h3 class="mb-0">12</h3></div>
+                <i class="bi bi-clipboard-check fs-3 text-warning"></i>
             </div>
         </div>
     </div>
 
-    <div class="card stat-card p-4 mb-4">
+    <div class="card border-0 shadow-sm p-4 mb-4">
         <h5 class="fw-bold mb-4">Course Completion Progress</h5>
         <div class="mb-4">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="fw-semibold small">GitHub Basics for Beginners</span>
-            </div>
+            <div class="d-flex justify-content-between mb-2 small fw-semibold">GitHub Basics for Beginners</div>
             <div class="progress" style="height: 8px; border-radius: 10px;">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
             </div>
         </div>
         <div class="mb-2">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="fw-semibold small">LinkedIn Essentials for Beginners</span>
-            </div>
+            <div class="d-flex justify-content-between mb-2 small fw-semibold">LinkedIn Essentials for Beginners</div>
             <div class="progress" style="height: 8px; border-radius: 10px;">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: 72%"></div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-8">
-            <div class="card stat-card p-4">
-                <h5 class="fw-bold mb-3">Student Progress Overview</h5>
-                <table class="table align-middle">
-                    <thead><tr><th>Student</th><th>Batch</th><th>Completion</th><th>Assessments</th></tr></thead>
-                    <tbody>
-                        <?php foreach ($students as $student): ?>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-size: 12px;">
-                                        <?php echo strtoupper(substr($student['name'], 0, 2)); ?>
-                                    </div>
-                                    <?php echo htmlspecialchars($student['name']); ?>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-light text-primary">Batch <?php echo $student['batch_id']; ?></span></td>
-                            <td><?php echo $student['completion_percentage'] ?? 0; ?>%</td>
-                            <td><i class="bi bi-check-circle text-success"></i> 8</td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Student Progress Overview</h5>
+            <div class="search-container">
+                <i class="bi bi-search"></i>
+                <input type="text" id="studentSearch" class="form-control" placeholder="Search by name or batch...">
             </div>
         </div>
+        <table class="table align-middle" id="studentTable">
+            <thead class="table-light">
+                <tr><th>Student</th><th>Batch</th><th>Completion</th><th>Assessments</th></tr>
+            </thead>
+            <tbody>
+                <?php foreach ($students as $student): ?>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 11px;">
+                                <?php echo strtoupper(substr($student['name'] ?? 'ST', 0, 2)); ?>
+                            </div>
+                            <span class="student-name small fw-semibold"><?php echo htmlspecialchars($student['name'] ?? 'Unknown'); ?></span>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-light text-primary batch-label">Batch <?php echo $student['batch_id'] ?? 'N/A'; ?></span></td>
+                    <td class="fw-bold"><?php echo $student['completion_percentage'] ?? 0; ?>%</td>
+                    <td><i class="bi bi-check-circle text-success"></i> 8</td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>
+
+<script>
+    // Live Search Logic
+    document.getElementById('studentSearch').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#studentTable tbody tr');
+
+        tableRows.forEach(row => {
+            const studentName = row.querySelector('.student-name').textContent.toLowerCase();
+            const batchLabel = row.querySelector('.batch-label').textContent.toLowerCase();
+            
+            if (studentName.includes(searchValue) || batchLabel.includes(searchValue)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

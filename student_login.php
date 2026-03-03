@@ -11,7 +11,11 @@
         <div class="card p-4 shadow-sm" style="width: 400px; border-radius: 15px;">
             <div class="text-center mb-4">
                 <h3 class="fw-bold">Student Login</h3>
-                <p class="text-muted">Access your personal learning progress</p>
+                <?php if(isset($_GET['error'])): ?>
+                    <p class="text-danger small">Invalid username or password!</p>
+                <?php else: ?>
+                    <p class="text-muted">Access your personal learning progress</p>
+                <?php endif; ?>
             </div>
             
             <form action="student_login_process.php" method="POST">

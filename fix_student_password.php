@@ -1,16 +1,17 @@
 <?php
 include 'config/db_config.php';
 
-// Encrypt Sami's password
+// 1. Create the new password hash
 $new_password = password_hash('sami123', PASSWORD_DEFAULT);
 
-// Update the database specifically for 'sami'
-$sql = "UPDATE users SET password_hash = ? WHERE username = 'sami'";
+// 2. IMPORTANT: Update BOTH the password and the role to 'student'
+$sql = "UPDATE users SET password_hash = ?, role = 'student' WHERE username = 'sami'";
 $stmt = $pdo->prepare($sql);
 
 if($stmt->execute([$new_password])) {
-    echo "Password updated successfully for Sami! You can now log in as a student.";
+    echo "SUCCESS: Sami's role is now 'student' and password is 'sami123'.<br>";
+    echo "You can now login at student_login.php";
 } else {
-    echo "Error updating student password.";
+    echo "ERROR: Failed to update the database.";
 }
 ?>
