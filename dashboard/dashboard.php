@@ -10,17 +10,40 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'instructor') {
 // 2. Single database connection
 include '../config/db_config.php'; 
 
+// --- NEW: GRADE SUBMISSION LOGIC ---
+$message = "";
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_grade'])) {
+    $student_id = $_POST['student_id'];
+    $course_name = $_POST['course_name'];
+    $grade_value = $_POST['grade'];
+
+    try {
+        // Insert into the grades table
+        $sql = "INSERT INTO grades (student_id, course_name, grade) VALUES (?, ?, ?)";
+        $stmt = $pdo->prepare($sql);
+        if ($stmt->execute([$student_id, $course_name, $grade_value])) {
+            $message = "<div class='alert alert-success py-2 small shadow-sm'><i class='bi bi-check-circle me-2'></i>Grade submitted successfully!</div>";
+        }
+    } catch (PDOException $e) {
+        $message = "<div class='alert alert-danger py-2 small shadow-sm'>Error: " . $e->getMessage() . "</div>";
+    }
+}
+
 // 3. Fetch data for the Stats
 $res = $pdo->query("SELECT COUNT(*) FROM students");
 $total_students = $res->fetchColumn();
 
-// 4. Fetch students for the Overview Table
-$query = "SELECT name, batch_id, completion_percentage 
+// 4. Fetch students for the Overview Table and Form Dropdown
+$query = "SELECT students.id, name, batch_id, completion_percentage 
           FROM students 
           LEFT JOIN progress ON students.id = progress.student_id 
           ORDER BY batch_id ASC";
 $stmt = $pdo->query($query);
 $students = $stmt->fetchAll();
+
+// 5. Fetch unique courses for the dropdown
+$course_query = "SELECT DISTINCT course_name FROM courses ORDER BY course_name ASC";
+$courses = $pdo->query($course_query)->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -142,13 +165,47 @@ $students = $stmt->fetchAll();
         </div>
         
         <div class="d-flex align-items-center">
-            <div class="text-muted me-3 small"><i class="bi bi-calendar3 me-1"></i> March 2, 2026</div>
+            <div class="text-muted me-3 small"><i class="bi bi-calendar3 me-1"></i> <?php echo date("F j, Y"); ?></div>
             <i class="bi bi-bell me-3 text-muted"></i>
             <div class="profile-header-icon shadow-sm" title="Instructor Profile">
-                TB
+                <?php echo strtoupper(substr($_SESSION['username'], 0, 2)); ?>
             </div>
         </div>
     </header>
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i> Quick Grade Entry</h5>
+        <?php echo $message; ?>
+        <form action="" method="POST" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Select Student</label>
+                <select name="student_id" class="form-select" required>
+                    <option value="">Choose Student...</option>
+                    <?php foreach ($students as $student): ?>
+                        <option value="<?php echo $student['id']; ?>"><?php echo htmlspecialchars($student['name']); ?> (Batch <?php echo $student['batch_id']; ?>)</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Course</label>
+                <select name="course_name" class="form-select" required>
+                    <option value="">Choose Course...</option>
+                    <?php foreach ($courses as $course): ?>
+                        <option value="<?php echo htmlspecialchars($course['course_name']); ?>">
+                            <?php echo htmlspecialchars($course['course_name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Grade (%)</label>
+                <input type="number" name="grade" class="form-control" min="0" max="100" placeholder="0-100" required>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" name="submit_grade" class="btn btn-primary w-100 fw-bold shadow-sm">Submit Grade</button>
+            </div>
+        </form>
+    </div>
 
     <div class="row g-4 mb-4">
         <div class="col-md-6">
@@ -196,7 +253,7 @@ $students = $stmt->fetchAll();
         </div>
         <div class="col-md-4">
             <div class="card border-0 shadow-sm p-3 d-flex flex-row justify-content-between align-items-center">
-                <div><p class="text-muted mb-0 small fw-bold">Active Courses</p><h3 class="mb-0">4</h3></div>
+                <div><p class="text-muted mb-0 small fw-bold">Active Courses</p><h3 class="mb-0"><?php echo count($courses); ?></h3></div>
                 <i class="bi bi-book fs-3 text-success"></i>
             </div>
         </div>
@@ -210,18 +267,14 @@ $students = $stmt->fetchAll();
 
     <div class="card border-0 shadow-sm p-4 mb-4">
         <h5 class="fw-bold mb-4">Course Completion Progress</h5>
+        <?php foreach (array_slice($courses, 0, 2) as $c): ?>
         <div class="mb-4">
-            <div class="d-flex justify-content-between mb-2 small fw-semibold">GitHub Basics for Beginners</div>
+            <div class="d-flex justify-content-between mb-2 small fw-semibold"><?php echo $c['course_name']; ?></div>
             <div class="progress" style="height: 8px; border-radius: 10px;">
-                <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 80%"></div>
             </div>
         </div>
-        <div class="mb-2">
-            <div class="d-flex justify-content-between mb-2 small fw-semibold">LinkedIn Essentials for Beginners</div>
-            <div class="progress" style="height: 8px; border-radius: 10px;">
-                <div class="progress-bar bg-primary" role="progressbar" style="width: 72%"></div>
-            </div>
-        </div>
+        <?php endforeach; ?>
     </div>
 
     <div class="card border-0 shadow-sm p-4">

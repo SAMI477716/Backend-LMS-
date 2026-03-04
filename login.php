@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Peak LMS</title>
+    <title>Instructor Login - Peak LMS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -15,26 +15,27 @@
             </div>
 
             <?php if (isset($_GET['error']) && $_GET['error'] == 'invalid'): ?>
-    <div class="alert alert-danger py-2 text-center" style="font-size: 14px; border-radius: 10px;">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i> 
-        Invalid username or password.
-    </div>
-  <?php endif; ?>
+                <div class="alert alert-danger py-2 text-center" style="font-size: 14px; border-radius: 10px;">
+                    Invalid username or password.
+                </div>
+            <?php endif; ?>
             
             <form action="login_process.php" method="POST">
                 <div class="mb-3">
                     <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required>
+                    <input type="text" name="username" class="form-control" required placeholder="Enter username">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <input type="password" name="password" class="form-control" required placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #001f3f;">Login</button>
+                <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #001f3f; border: none;">Login</button>
             </form>
-            
+
             <div class="mt-3 text-center">
-                <a href="index.php" class="text-decoration-none small">← Back to Role Selection</a>
+                <p class="small text-muted mb-1">New instructor? <a href="register.php" class="text-decoration-none fw-bold">or, sign up</a></p>
+                <hr>
+                <a href="index.php" class="text-decoration-none small text-secondary">← Back to Role Selection</a>
             </div>
         </div>
     </div>

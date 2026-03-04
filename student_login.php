@@ -21,16 +21,18 @@
             <form action="student_login_process.php" method="POST">
                 <div class="mb-3">
                     <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required placeholder="Enter 'sami'">
+                    <input type="text" name="username" class="form-control" required placeholder="Enter username">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required placeholder="Enter 'sami123'">
+                    <input type="password" name="password" class="form-control" required placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #001f3f;">Login to Dashboard</button>
+                <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #008080; border: none;">Log in</button>
             </form>
             
             <div class="mt-3 text-center">
+                <p class="small text-muted">Don't have an account? <a href="register.php" class="text-decoration-none">or, sign up</a></p>
+                <hr>
                 <a href="index.php" class="text-decoration-none small">← Back to Role Selection</a>
             </div>
         </div>

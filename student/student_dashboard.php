@@ -14,21 +14,26 @@ include_once '../config/db_config.php';
 $student_id = $_SESSION['user_id'];
 $student_name = $_SESSION['username'];
 
-/** * 2. Fetch Student Progress 
- * FIXED: Removed 'course_name' from the SELECT statement because 
- * the column does not exist in your current database table.
- */
+/** 2. Fetch Student Progress & Grades **/
 try {
+    // Fetch General Progress
     $query = "SELECT id, completion_percentage FROM progress WHERE student_id = ?";
     $stmt = $pdo->prepare($query);
     $stmt->execute([$student_id]);
     $my_progress = $stmt->fetchAll();
+
+    // NEW: Fetch Detailed Grades from the grades table
+    $grade_query = "SELECT course_name, grade, created_at FROM grades WHERE student_id = ? ORDER BY created_at DESC";
+    $grade_stmt = $pdo->prepare($grade_query);
+    $grade_stmt->execute([$student_id]);
+    $my_grades = $grade_stmt->fetchAll();
+
 } catch (PDOException $e) {
-    // Fail gracefully if there is a database issue
     $my_progress = [];
+    $my_grades = [];
 }
 
-// 3. Calculate Average Progress for the Stat Card
+// 3. Calculate Average Progress
 $avg_progress = 0;
 if (count($my_progress) > 0) {
     $total = array_sum(array_column($my_progress, 'completion_percentage'));
@@ -79,6 +84,8 @@ if (count($my_progress) > 0) {
             border-radius: 50%;
             font-weight: bold;
         }
+        .card { border-radius: 12px; }
+        .table thead { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
@@ -127,16 +134,15 @@ if (count($my_progress) > 0) {
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm p-4">
-        <h5 class="fw-bold mb-4">Course Progress</h5>
-        
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart-line me-2"></i>Course Progress</h5>
         <?php if (empty($my_progress)): ?>
             <div class="alert alert-info">You haven't been assigned any courses yet.</div>
         <?php else: ?>
             <?php foreach ($my_progress as $course): ?>
                 <div class="mb-4">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="fw-semibold">Course #<?php echo htmlspecialchars($course['id']); ?></span>
+                        <span class="fw-semibold">Batch Progress Overview</span>
                         <span class="text-primary fw-bold"><?php echo $course['completion_percentage']; ?>%</span>
                     </div>
                     <div class="progress" style="height: 10px; border-radius: 10px;">
@@ -148,6 +154,44 @@ if (count($my_progress) > 0) {
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4">
+        <h5 class="fw-bold mb-4"><i class="bi bi-journal-check me-2"></i>My Exam Results</h5>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr class="text-muted small uppercase">
+                        <th>Course Name</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                        <th>Date Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($my_grades)): ?>
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted small">No grades have been posted for your account yet.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($my_grades as $row): ?>
+                            <tr>
+                                <td class="fw-semibold text-dark"><?php echo htmlspecialchars($row['course_name']); ?></td>
+                                <td class="fw-bold text-primary"><?php echo $row['grade']; ?>%</td>
+                                <td>
+                                    <?php if($row['grade'] >= 50): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success">Passed</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger">Retake Needed</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-muted small"><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

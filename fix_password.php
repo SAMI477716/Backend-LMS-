@@ -11,3 +11,5 @@ if($stmt->execute([$new_password])) {
     echo "Error updating password.";
 }
 ?>
+
+
