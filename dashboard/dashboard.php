@@ -38,6 +38,7 @@ $query = "SELECT students.id, name, batch_id, completion_percentage
           FROM students 
           LEFT JOIN progress ON students.id = progress.student_id 
           ORDER BY batch_id ASC";
+          
 $stmt = $pdo->query($query);
 $students = $stmt->fetchAll();
 

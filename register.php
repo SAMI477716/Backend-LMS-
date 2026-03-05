@@ -1,51 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Create Account - Peak LMS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card shadow-sm p-4" style="width: 420px; border-radius: 15px;">
-            <h4 class="text-center fw-bold mb-4">Create Account</h4>
-            <form action="register_process.php" method="POST">
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="e.g. Samuel Z" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Email</label>
-                    <input type="email" name="email" class="form-control" placeholder="email@example.com" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Password</label>
-                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Role</label>
-                    <select name="role" class="form-select">
-                        <option value="student">Student</option>
-                        <option value="instructor">Instructor</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Batch</label>
-                    <select name="batch" class="form-select">
-                        <option value="Batch 1">Batch 1</option>
-                        <option value="Batch 2">Batch 2</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold mb-3">Register Now</button>
-            </form>
+<?php
+// 1. Include database connection
+include_once 'config/db_config.php';
 
-            <div class="text-center border-top pt-3">
-    <p class="small text-muted mb-1">Already have an account?</p>
-    <div class="d-grid gap-2">
-        <a href="student_login.php" class="btn btn-outline-secondary btn-sm">Click here for Student Login</a>
-        <a href="login.php" class="btn btn-outline-dark btn-sm">Click here for Instructor Login</a>
-       </div>
-        </div>
-        </div>
-    </div>
-</body>
-</html>
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // 2. Capture form data
+    $username = trim($_POST['username']);
+    $email    = trim($_POST['email']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $role     = $_POST['role'];
+    $batch    = $_POST['batch']; // e.g., "Batch 1"
+
+    try {
+        // Start a transaction to ensure both tables are updated or none at all
+        $pdo->beginTransaction();
+
+        // 3. Insert into 'users' table
+        $sql_user = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        $stmt_user = $pdo->prepare($sql_user);
+        $stmt_user->execute([$username, $email, $password, $role]);
+        
+        // Get the ID of the user we just inserted
+        $user_id = $pdo->lastInsertId();
+
+        // 4. If the role is 'student', automatically create the student profile
+        if ($role === 'student') {
+            // We use $user_id to link the tables
+            $sql_student = "INSERT INTO students (user_id, name, batch_id) VALUES (?, ?, ?)";
+            $stmt_student = $pdo->prepare($sql_student);
+            
+            // Note: batch_id in your students table seems to store strings like "Batch 1" 
+            // based on your HTML select values.
+            $stmt_student->execute([$user_id, $username, $batch]);
+        }
+
+        // Commit the changes to the database
+        $pdo->commit();
+
+        // Redirect based on role
+        if ($role === 'student') {
+            header("Location: student_login.php?registration=success");
+        } else {
+            header("Location: login.php?registration=success");
+        }
+        exit();
+
+    } catch (Exception $e) {
+        // If anything goes wrong, undo everything
+        $pdo->rollBack();
+        error_log("Registration Error: " . $e->getMessage());
+        die("An error occurred during registration. Please try again.");
+    }
+}
