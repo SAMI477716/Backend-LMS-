@@ -9,7 +9,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role = $_POST['role']; 
     $batch = $_POST['batch'];
 
-    // Securely hash the password
     $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
 
     try {
@@ -19,25 +18,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute([$username, $email, $hashed_pass, $role, $batch])) {
             $user_id = $pdo->lastInsertId();
 
-            // Auto-login session
             $_SESSION['user_id'] = $user_id;
             $_SESSION['username'] = $username;
             $_SESSION['role'] = $role;
 
-            // --- REDIRECT LOGIC FIX ---
+            // --- REDIRECT FIX BASED ON YOUR IMAGES ---
             if ($role === 'instructor') {
-                // If your instructor file is in the 'dashboard' folder:
+                // Verified path from image_e7f4c0.png
                 header("Location: dashboard/dashboard.php"); 
             } else {
-                // For students:
+                // Verified path from image_e7f49f.png
                 header("Location: student/student_dashboard.php");
             }
             exit();
         }
 
     } catch (PDOException $e) {
-        // This will catch if the username already exists
-        echo "Registration Error: " . $e->getMessage();
+        echo "Error: " . $e->getMessage();
     }
 }
 ?>

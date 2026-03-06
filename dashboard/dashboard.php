@@ -10,7 +10,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'instructor') {
 // 2. Single database connection
 include '../config/db_config.php'; 
 
-// --- NEW: GRADE SUBMISSION LOGIC ---
+// --- GRADE SUBMISSION LOGIC ---
 $message = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_grade'])) {
     $student_id = $_POST['student_id'];
@@ -34,10 +34,12 @@ $res = $pdo->query("SELECT COUNT(*) FROM students");
 $total_students = $res->fetchColumn();
 
 // 4. Fetch students for the Overview Table and Form Dropdown
-$query = "SELECT students.id, name, batch_id, completion_percentage 
+// UPDATE: Using LEFT JOIN and IFNULL ensures students show up even if they haven't started progress yet
+$query = "SELECT students.id, students.name, students.batch_id, 
+          IFNULL(progress.completion_percentage, 0) as completion_percentage 
           FROM students 
           LEFT JOIN progress ON students.id = progress.student_id 
-          ORDER BY batch_id ASC";
+          ORDER BY students.batch_id ASC, students.name ASC";
           
 $stmt = $pdo->query($query);
 $students = $stmt->fetchAll();
@@ -69,6 +71,8 @@ $courses = $pdo->query($course_query)->fetchAll();
             color: #6c757d;
             padding: 12px 25px;
             font-weight: 500;
+            text-decoration: none;
+            display: block;
         }
         .sidebar .nav-link.active {
             color: #0d6efd;
@@ -162,7 +166,7 @@ $courses = $pdo->query($course_query)->fetchAll();
     <header class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-0">Dashboard</h2>
-            <p class="text-muted small">Welcome back, <?php echo $_SESSION['username']; ?>!</p>
+            <p class="text-muted small">Welcome back, <?php echo htmlspecialchars($_SESSION['username']); ?>!</p>
         </div>
         
         <div class="d-flex align-items-center">
@@ -183,7 +187,10 @@ $courses = $pdo->query($course_query)->fetchAll();
                 <select name="student_id" class="form-select" required>
                     <option value="">Choose Student...</option>
                     <?php foreach ($students as $student): ?>
-                        <option value="<?php echo $student['id']; ?>"><?php echo htmlspecialchars($student['name']); ?> (Batch <?php echo $student['batch_id']; ?>)</option>
+                        <option value="<?php echo $student['id']; ?>">
+                            <?php echo htmlspecialchars($student['name'] ?? 'Unknown'); ?> 
+                            (Batch <?php echo htmlspecialchars($student['batch_id'] ?? 'N/A'); ?>)
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -214,7 +221,7 @@ $courses = $pdo->query($course_query)->fetchAll();
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
                         <h5 class="fw-bold mb-0">Batch 1</h5>
-                        <p class="text-muted small mb-0">24 students</p>
+                        <p class="text-muted small mb-0">Overview</p>
                     </div>
                     <div class="text-end">
                         <h2 class="fw-bold mb-0">78%</h2>
@@ -231,7 +238,7 @@ $courses = $pdo->query($course_query)->fetchAll();
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
                         <h5 class="fw-bold mb-0">Batch 2</h5>
-                        <p class="text-muted small mb-0">24 students</p>
+                        <p class="text-muted small mb-0">Overview</p>
                     </div>
                     <div class="text-end">
                         <h2 class="fw-bold mb-0">75%</h2>
@@ -270,7 +277,7 @@ $courses = $pdo->query($course_query)->fetchAll();
         <h5 class="fw-bold mb-4">Course Completion Progress</h5>
         <?php foreach (array_slice($courses, 0, 2) as $c): ?>
         <div class="mb-4">
-            <div class="d-flex justify-content-between mb-2 small fw-semibold"><?php echo $c['course_name']; ?></div>
+            <div class="d-flex justify-content-between mb-2 small fw-semibold"><?php echo htmlspecialchars($c['course_name']); ?></div>
             <div class="progress" style="height: 8px; border-radius: 10px;">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: 80%"></div>
             </div>
@@ -286,28 +293,30 @@ $courses = $pdo->query($course_query)->fetchAll();
                 <input type="text" id="studentSearch" class="form-control" placeholder="Search by name or batch...">
             </div>
         </div>
-        <table class="table align-middle" id="studentTable">
-            <thead class="table-light">
-                <tr><th>Student</th><th>Batch</th><th>Completion</th><th>Assessments</th></tr>
-            </thead>
-            <tbody>
-                <?php foreach ($students as $student): ?>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 11px;">
-                                <?php echo strtoupper(substr($student['name'] ?? 'ST', 0, 2)); ?>
+        <div class="table-responsive">
+            <table class="table align-middle" id="studentTable">
+                <thead class="table-light">
+                    <tr><th>Student</th><th>Batch</th><th>Completion</th><th>Assessments</th></tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($students as $student): ?>
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 11px;">
+                                    <?php echo strtoupper(substr($student['name'] ?? 'ST', 0, 2)); ?>
+                                </div>
+                                <span class="student-name small fw-semibold"><?php echo htmlspecialchars($student['name'] ?? 'Unknown'); ?></span>
                             </div>
-                            <span class="student-name small fw-semibold"><?php echo htmlspecialchars($student['name'] ?? 'Unknown'); ?></span>
-                        </div>
-                    </td>
-                    <td><span class="badge bg-light text-primary batch-label">Batch <?php echo $student['batch_id'] ?? 'N/A'; ?></span></td>
-                    <td class="fw-bold"><?php echo $student['completion_percentage'] ?? 0; ?>%</td>
-                    <td><i class="bi bi-check-circle text-success"></i> 8</td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                        </td>
+                        <td><span class="badge bg-light text-primary batch-label">Batch <?php echo htmlspecialchars($student['batch_id'] ?? 'N/A'); ?></span></td>
+                        <td class="fw-bold"><?php echo $student['completion_percentage']; ?>%</td>
+                        <td><i class="bi bi-check-circle text-success"></i> 8</td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
